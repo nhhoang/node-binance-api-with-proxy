@@ -234,6 +234,9 @@ let api = function Binance( options = {} ) {
      */
     const publicRequest = ( url, data = {}, callback, method = 'GET' ) => {
         let opt = reqObj( url, data, method );
+        if (Binance.options.isWeb) {
+            opt.url = `http://${Binance.options.webProxy}/${opt.url}`;
+        }
         proxyRequest( opt, callback );
     };
 
@@ -4048,6 +4051,45 @@ let api = function Binance( options = {} ) {
             return symbol ? data : data.reduce( ( out, i ) => ( ( out[i.symbol] = i ), out ), {} );
         },
 
+        futuresLimitOrder: async ( side, symbol, quantity, price, params = {} ) => {
+            return futuresOrder( side, symbol, quantity, price, params );
+        },
+
+        futuresMarketOrder: async ( side, symbol, quantity, params = {} ) => {
+            return futuresOrder( side, symbol, quantity, false, params );
+        },
+
+        futuresStopLimitOrder: async ( side, symbol, quantity, price, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP";
+            return futuresOrder( side, symbol, quantity, price, params );
+        },
+
+        futuresStopMarketOrder: async ( side, symbol, quantity, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP_MARKET";
+            return futuresOrder( side, symbol, quantity, false, params );
+        },
+
+        futuresTakeProfitLimitOrder: async ( side, symbol, quantity, price, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "TAKE_PROFIT";
+            return futuresOrder( side, symbol, quantity, price, params );
+        },
+
+        futuresTakeProfitMarketOrder: async ( side, symbol, quantity, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "TAKE_PROFIT_MARKET";
+            return futuresOrder( side, symbol, quantity, false, params );
+        },
+
+        futuresTrailingOrder: async ( side, symbol, quantity, activationPrice, callbackRate, params = {} ) => {
+            params.activationPrice = activationPrice;
+            params.callbackRate = callbackRate;
+            params.type = "TRAILING_STOP_MARKET";
+            return futuresOrder( side, symbol, quantity, false, params );
+        },
+
         futuresBuy: async ( symbol, quantity, price, params = {} ) => {
             return futuresOrder( 'BUY', symbol, quantity, price, params );
         },
@@ -4061,6 +4103,44 @@ let api = function Binance( options = {} ) {
         },
 
         futuresMarketSell: async ( symbol, quantity, params = {} ) => {
+            return futuresOrder( 'SELL', symbol, quantity, false, params );
+        },
+
+        futuresBuyStopLimit: async ( symbol, quantity, price, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP";
+            return futuresOrder( 'BUY', symbol, quantity, price, params );
+        },
+
+        futuresSellStopLimit: async ( symbol, quantity, price, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP";
+            return futuresOrder( 'SELL', symbol, quantity, price, params );
+        },
+
+        futuresBuyStopMarket: async ( symbol, quantity, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP_MARKET";
+            return futuresOrder( 'BUY', symbol, quantity, false, params );
+        },
+
+        futuresSellStopMarket: async ( symbol, quantity, stopPrice, params = {} ) => {
+            params.stopPrice = stopPrice;
+            params.type = "STOP_MARKET";
+            return futuresOrder( 'SELL', symbol, quantity, false, params );
+        },
+
+        futuresTrailingBuy: async ( symbol, quantity, activationPrice, callbackRate, params = {} ) => {
+            params.activationPrice = activationPrice;
+            params.callbackRate = callbackRate;
+            params.type = "TRAILING_STOP_MARKET";
+            return futuresOrder( 'BUY', symbol, quantity, false, params );
+        },
+
+        futuresTrailingSell: async ( symbol, quantity, activationPrice, callbackRate, params = {} ) => {
+            params.activationPrice = activationPrice;
+            params.callbackRate = callbackRate;
+            params.type = "TRAILING_STOP_MARKET";
             return futuresOrder( 'SELL', symbol, quantity, false, params );
         },
 
